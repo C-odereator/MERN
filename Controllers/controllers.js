@@ -1,5 +1,5 @@
 const { User } = require("../Models/models");
-
+const bcrypt = require("bcrypt");
 const home = async (req, res) => {
   try {
     res.send("nothing World");
@@ -11,9 +11,22 @@ const home = async (req, res) => {
 const register = async (req, res) => {
   try {
     const { username, email, phone, password } = req.body;
-    const userCreated = await User.create({ username, email, phone, password });
+    const saltRound = 10;
+    const hashPassword = await bcrypt.hash(password, saltRound);
 
-    res.status(200).json({ msg: userCreated });
+    const userCreated = await User.create({
+      username,
+      email,
+      phone,
+      password: hashPassword,
+    });
+
+    console.log(userCreated);
+    res.status(201).json({
+      msg: "registration successful",
+      token: await userCreated.generateToken(),
+      userId: userCreated._id.toString(),
+    });
   } catch (error) {
     console.log(error);
   }
