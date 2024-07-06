@@ -7,7 +7,7 @@ const home = async (req, res) => {
     console.log(error);
   }
 };
-
+// nothing
 const register = async (req, res) => {
   try {
     const { username, email, phone, password } = req.body;
