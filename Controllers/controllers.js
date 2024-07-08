@@ -22,7 +22,7 @@ const register = async (req, res) => {
     });
 
     console.log(userCreated);
-    res.status(201).json({
+    res.status(200).json({
       msg: "registration successful",
       token: await userCreated.generateToken(),
       userId: userCreated._id.toString(),
@@ -32,7 +32,34 @@ const register = async (req, res) => {
   }
 };
 
+const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({
+        msg: "user not found",
+      });
+    }
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(400).json({
+        msg: "password is incorrect",
+      });
+    }
+    res.status(200).json({
+      msg: "login successful",
+      token: await user.generateToken(),
+      userId: user._id.toString(),
+    });
+  } catch (error) {
+    res.status(500).json({ msg: "Error from Login" });
+  }
+};
+
 module.exports = {
   home,
+  login,
   register,
 };
